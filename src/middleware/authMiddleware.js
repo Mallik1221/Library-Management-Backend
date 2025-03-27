@@ -30,9 +30,9 @@ const admin = (req, res, next) => {
   }
 };
 
-// Check for Admin or Librarian role
+// Admin or Librarian Middleware
 const adminOrLibrarian = (req, res, next) => {
-  if (req.user.role === 'Admin' || req.user.role === 'Librarian') {
+  if (req.user && (req.user.role === 'Admin' || req.user.role === 'Librarian')) {
     next();
   } else {
     return res.status(403).json({ message: 'Access denied. Admin or Librarian only' });
@@ -48,6 +48,4 @@ const Librarian = (req, res, next) => {
   }
 };
 
-
-
-module.exports = { protect, adminOrLibrarian, admin ,Librarian };
+module.exports = { protect, admin, adminOrLibrarian, Librarian };

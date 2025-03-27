@@ -9,6 +9,10 @@ const BookSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Author name is required'],
   },
+  description: {
+    type: String,
+    default: '',
+  },
   category: {
     type: String,
     required: [true, 'Category is required'],
