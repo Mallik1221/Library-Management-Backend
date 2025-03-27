@@ -28,6 +28,10 @@ const BookSchema = new mongoose.Schema({
     ref: 'User',
     default: null,
   },
+  borrowedAt: {
+    type: Date,
+    default: null,
+  },
   dueDate: {
     type: Date,
     default: null,
@@ -35,6 +39,18 @@ const BookSchema = new mongoose.Schema({
   fine: {
     type: Number,
     default: 0,
+  },
+  availableCopies: {
+    type: Number,
+    required: true,
+  },
+  totalCopies: {
+    type: Number,
+    required: true,
+  },
+  bookImage: {
+    type: String, // Store image URL
+    default: null,
   },
 }, { timestamps: true });
 

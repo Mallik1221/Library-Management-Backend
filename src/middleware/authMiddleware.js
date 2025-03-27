@@ -30,4 +30,24 @@ const admin = (req, res, next) => {
   }
 };
 
-module.exports = { protect, admin };
+// Check for Admin or Librarian role
+const adminOrLibrarian = (req, res, next) => {
+  if (req.user.role === 'Admin' || req.user.role === 'Librarian') {
+    next();
+  } else {
+    return res.status(403).json({ message: 'Access denied. Admin or Librarian only' });
+  }
+};
+
+//Check for Librarian role only
+const Librarian = (req, res, next) => {
+  if (req.user.role === 'Librarian') {
+    next();
+  } else {
+    return res.status(403).json({ message: 'Access denied. Librarian only' });
+  }
+};
+
+
+
+module.exports = { protect, adminOrLibrarian, admin ,Librarian };
