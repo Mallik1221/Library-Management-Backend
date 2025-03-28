@@ -306,4 +306,77 @@ const getUserHistory = async (req, res) => {
   }
 };
 
-module.exports = { addBook, getBookById, updateBook, deleteBook, borrowBook, returnBook, getBooks, getUserHistory };
+// @desc Get recent borrowings
+// @route GET /api/books/borrowings/recent
+// @access Private (Librarian & Admin)
+const getRecentBorrowings = async (req, res) => {
+  try {
+    const borrowings = await Borrow.find()
+      .populate('book', 'title author')
+      .populate('user', 'name email')
+      .sort({ borrowedAt: -1 })
+      .limit(10);
+
+    res.status(200).json(borrowings);
+  } catch (error) {
+    console.error('Error in getRecentBorrowings:', error);
+    res.status(500).json({ message: 'Error fetching recent borrowings' });
+  }
+};
+
+// @desc Get dashboard statistics
+// @route GET /api/books/stats/dashboard
+// @access Private (Admin & Librarian)
+const getDashboardStats = async (req, res) => {
+  try {
+    // Get total books count
+    const totalBooks = await Book.countDocuments();
+    
+    // Get available books (books with at least one copy available)
+    const availableBooks = await Book.countDocuments({ 
+      availableCopies: { $gt: 0 } 
+    });
+    
+    // Get borrowed books count (active borrows)
+    const borrowedBooks = await Borrow.countDocuments({ 
+      returnedAt: null 
+    });
+
+    // Get overdue books count
+    const currentDate = new Date();
+    const overdueBooks = await Borrow.countDocuments({
+      returnedAt: null,
+      dueDate: { $lt: currentDate }
+    });
+    
+    // Get total users count
+    const User = require('../models/User');
+    const totalUsers = await User.countDocuments();
+
+    const stats = {
+      totalBooks,
+      availableBooks,
+      borrowedBooks,
+      overdueBooks,
+      totalUsers
+    };
+
+    res.status(200).json(stats);
+  } catch (error) {
+    console.error('Error in getDashboardStats:', error);
+    res.status(500).json({ message: 'Error fetching dashboard statistics' });
+  }
+};
+
+module.exports = { 
+  addBook, 
+  getBookById, 
+  updateBook, 
+  deleteBook, 
+  borrowBook, 
+  returnBook, 
+  getBooks, 
+  getUserHistory,
+  getRecentBorrowings,
+  getDashboardStats 
+};
