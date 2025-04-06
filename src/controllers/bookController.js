@@ -312,12 +312,38 @@ const getUserHistory = async (req, res) => {
 const getRecentBorrowings = async (req, res) => {
   try {
     const borrowings = await Borrow.find()
-      .populate('book', 'title author')
-      .populate('user', 'name email')
+      .populate({
+        path: 'book',
+        select: 'title author',
+        match: { _id: { $exists: true } } // Only populate if book exists
+      })
+      .populate({
+        path: 'user',
+        select: 'name email',
+        match: { _id: { $exists: true } } // Only populate if user exists
+      })
       .sort({ borrowedAt: -1 })
       .limit(10);
 
-    res.status(200).json(borrowings);
+    // Filter out borrowings where either book or user is null
+    const validBorrowings = borrowings.filter(borrowing => 
+      borrowing.book && borrowing.user
+    );
+
+    // Log any invalid borrowings for cleanup
+    const invalidBorrowings = borrowings.filter(borrowing => 
+      !borrowing.book || !borrowing.user
+    );
+
+    if (invalidBorrowings.length > 0) {
+      console.warn('Found invalid borrowings:', invalidBorrowings.map(b => ({
+        _id: b._id,
+        missingBook: !b.book,
+        missingUser: !b.user
+      })));
+    }
+
+    res.status(200).json(validBorrowings);
   } catch (error) {
     console.error('Error in getRecentBorrowings:', error);
     res.status(500).json({ message: 'Error fetching recent borrowings' });

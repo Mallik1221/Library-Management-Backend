@@ -4,6 +4,7 @@ const cors = require('cors');
 const connectDB = require('./config/db');
 const authRoutes = require('./routes/authRoutes');
 const cronJobs = require('./utils/cronJobs');
+const { scheduleCleanup } = require('./utils/cleanup');
 const dashboardRoutes = require('./routes/dashboardRoutes');
 const path = require('path');
 const fs = require('fs');
@@ -30,6 +31,9 @@ app.use('/api/auth', authRoutes);
 app.use('/api/books', require('./routes/bookRoutes'));
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/users', userRoutes);
+
+// Initialize cleanup scheduler
+scheduleCleanup();
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

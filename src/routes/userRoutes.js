@@ -6,11 +6,13 @@ const { protect, admin } = require('../middleware/authMiddleware');
 // All routes are protected and admin-only
 router.use(protect, admin);
 
-router.route('/')
-  .get(getUsers);
+// Get all users
+router.get('/', getUsers);
 
-router.route('/:id')
-  .put(updateUser)
-  .delete(deleteUser);
+// Update user
+router.put('/:id', updateUser);
+
+// Delete user (with cleanup)
+router.delete('/:id', deleteUser);
 
 module.exports = router; 
